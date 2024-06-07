@@ -16,11 +16,14 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-        
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.x'
+
+      - name: Install Dependencies
+        run: pip install requests
 
       - name: Run Data Collector
         run: python popularity/data_collector_v2.py
@@ -30,5 +33,5 @@ jobs:
           git config --global user.email "jaeuk520@naver.com"
           git config --global user.name "jaeuk520"
           git add popularity/data/*
-          git commit -m " csv $(date +'%Y-%m-%d')"
+          git commit -m "feat: 실시간 인구 데이터 수집 $(date +'%Y-%m-%d %H:%M')"
           git push https://${{ secrets.COVI_AI }}@github.com/Covigator/Covigator-AI.git feature/data_collector
