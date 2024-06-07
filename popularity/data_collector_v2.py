@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 BASE_URL = "http://openapi.seoul.go.kr:8088/44434c75716a616534354c774e7959/json/citydata/1/5/"
 RETRIES = 5
 
+TIME = 'PPLTN_TIME'
 CITY_DATA = 'CITYDATA'
 SEOUL_DATA_POPULATION = 'LIVE_PPLTN_STTS'
 AREA_NAME = 'AREA_NM'
@@ -27,9 +28,9 @@ PM25 = 'PM25'
 PM10 = 'PM10'
 
 def write_data_to_csv(area_name, area_code, congestion_level, population_min, population_max, traffic_speed, temperature, humidity,
-                           precipitation, uv_level, pm25, pm10, file_path):
+                           precipitation, uv_level, pm25, pm10, time, file_path):
 
-    fieldnames = ['지역명', '지역코드', '혼잡도', '최소인구수', '최대인구수', '전체도로소통평균속도', '기온', '습도', '강수량', '자외선지수단계', '초미세먼지농도', '미세먼지농도']
+    fieldnames = ['시각', '지역명', '지역코드', '혼잡도', '최소인구수', '최대인구수', '전체도로소통평균속도', '기온', '습도', '강수량', '자외선지수단계', '초미세먼지농도', '미세먼지농도']
 
     # 파일이 존재하지 않으면 새로 생성
     if not os.path.isfile(file_path):
@@ -42,6 +43,7 @@ def write_data_to_csv(area_name, area_code, congestion_level, population_min, po
         writer = csv.DictWriter(file, fieldnames=fieldnames)
 
         writer.writerow({
+            '시각': time,
             '지역명': area_name,
             '지역코드': area_code,
             '혼잡도': congestion_level,
@@ -96,6 +98,7 @@ def do_thread_collect(i):
         uv_level = data[CITY_DATA][WEATHER_STATUS][0][UV_INDEX_LEVEL]
         pm25 = data[CITY_DATA][WEATHER_STATUS][0][PM25]
         pm10 = data[CITY_DATA][WEATHER_STATUS][0][PM10]
+        time = data[CITY_DATA][SEOUL_DATA_POPULATION][0][TIME]
 
         if precipitation == '-': precipitation = 0
 
@@ -103,14 +106,14 @@ def do_thread_collect(i):
         file_path = os.path.join(data_folder, f'{area_name}.csv')
 
         write_data_to_csv(area_name, area_code, congestion_level, population_min, population_max, traffic_speed, temperature, humidity,
-                           precipitation, uv_level, pm25, pm10, file_path)
+                           precipitation, uv_level, pm25, pm10, time, file_path)
 
 def main():
 
     start_time = time.time()  # 실행 시간 측정 시작
 
     with ThreadPoolExecutor(max_workers=5) as executor:
-        executor.map(do_thread_collect, range(1, 2))
+        executor.map(do_thread_collect, range(1, 116))
 
     end_time = time.time()
     execution_time = end_time - start_time
