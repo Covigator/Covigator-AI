@@ -3,7 +3,7 @@ import time
 import csv
 import os
 from concurrent.futures import ThreadPoolExecutor
-
+from datetime import datetime
 
 BASE_URL = "http://openapi.seoul.go.kr:8088/44434c75716a616534354c774e7959/json/citydata/1/5/"
 RETRIES = 5
@@ -28,7 +28,7 @@ PM25 = 'PM25'
 PM10 = 'PM10'
 
 def write_data_to_csv(area_name, area_code, congestion_level, population_min, population_max, traffic_speed, temperature, humidity,
-                           precipitation, uv_level, pm25, pm10, time, file_path):
+                           precipitation, uv_level, pm25, pm10, file_path):
 
     fieldnames = ['시각', '지역명', '지역코드', '혼잡도', '최소인구수', '최대인구수', '전체도로소통평균속도', '기온', '습도', '강수량', '자외선지수단계', '초미세먼지농도', '미세먼지농도']
 
@@ -41,9 +41,10 @@ def write_data_to_csv(area_name, area_code, congestion_level, population_min, po
     # 데이터 추가
     with open(file_path, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
 
         writer.writerow({
-            '시각': time,
+            '시각': current_time,
             '지역명': area_name,
             '지역코드': area_code,
             '혼잡도': congestion_level,
@@ -98,7 +99,6 @@ def do_thread_collect(i):
         uv_level = data[CITY_DATA][WEATHER_STATUS][0][UV_INDEX_LEVEL]
         pm25 = data[CITY_DATA][WEATHER_STATUS][0][PM25]
         pm10 = data[CITY_DATA][WEATHER_STATUS][0][PM10]
-        time = data[CITY_DATA][SEOUL_DATA_POPULATION][0][TIME]
 
         if precipitation == '-': precipitation = 0
 
@@ -106,7 +106,7 @@ def do_thread_collect(i):
         file_path = os.path.join(data_folder, f'{area_name}.csv')
 
         write_data_to_csv(area_name, area_code, congestion_level, population_min, population_max, traffic_speed, temperature, humidity,
-                           precipitation, uv_level, pm25, pm10, time, file_path)
+                           precipitation, uv_level, pm25, pm10, file_path)
 
 def main():
 
