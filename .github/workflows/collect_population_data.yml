@@ -28,11 +28,15 @@ jobs:
       - name: Run Data Collector
         run: python popularity/data_collector_v2.py
 
-      - name: Commit & Push
+      - name: Commit
         run: |
           git config --global user.email "jaeuk520@naver.com"
           git config --global user.name "jaeuk520"
           git checkout feature/data_collector
           git add ./popularity/data/*
           git commit -m "feat: 실시간 인구 데이터 수집 $(date +'%Y-%m-%d %H:%M')"
-          git push https://${{ secrets.GH_PAT }}@github.com/Covigator/Covigator-AI.git feature/data_collector
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+            branch: feature/data_collector
+            github_token: ${{secrets.GH_PAT}}
