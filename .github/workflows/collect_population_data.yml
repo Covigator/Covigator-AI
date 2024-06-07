@@ -20,8 +20,7 @@ jobs:
           python-version: '3.x'
 
       - name: Run Data Collector
-        run: python data_collector_v2.py
-        working-directory: ./popularity
+        run: python popularity/python data_collector_v2.py
 
       - name: Commit & Push
         run: |
