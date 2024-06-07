@@ -1,0 +1,32 @@
+name: Collect Seoul Population Data
+
+on:
+  push:
+    branches: [ "feature/data_collector" ]
+  pull_request:
+    branches: [ "feature/data_collector" ]
+
+  schedule:
+    - cron: '0 * * * *'  # 매 정각마다 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Run Data Collector
+        run: python data_collector_v2.py
+        working-directory: ./popularity
+
+      - name: Commit & Push
+        run: |
+          git config --global user.email "jaeuk520@naver.com"
+          git config --global user.name "jaeuk520"
+          git add popularity/data/*
+          git commit -m " csv $(date +'%Y-%m-%d')"
+          git push https://${{ secrets.COVI_AI }}@github.com/Covigator/Covigator-AI.git feature/data_collector
