@@ -34,4 +34,4 @@ jobs:
           git config --global user.name "jaeuk520"
           git add popularity/data/*
           git commit -m "feat: 실시간 인구 데이터 수집 $(date +'%Y-%m-%d %H:%M')"
-          git push https://${{ secrets.COVI_AI }}@github.com/Covigator/Covigator-AI.git feature/data_collector
+          git push https://${{ secrets.COV_AI }}@github.com/Covigator/Covigator-AI.git feature/data_collector
