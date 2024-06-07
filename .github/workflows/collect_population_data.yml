@@ -1,11 +1,6 @@
 name: Collect Seoul Population Data
 
 on:
-  push:
-    branches: [ "feature/data_collector" ]
-  pull_request:
-    branches: [ "feature/data_collector" ]
-
   schedule:
     - cron: '0 * * * *'  # 매 정각마다 실행
 
