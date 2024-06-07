@@ -39,4 +39,4 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
             branch: feature/data_collector
-            github_token: ${{secrets.GH_PAT}}
+            github_token: ${{secrets.GITHUB_TOKEN}}
