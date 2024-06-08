@@ -18,7 +18,9 @@ jobs:
           python-version: '3.x'
 
       - name: Install Dependencies
-        run: pip install requests
+        run: |
+          pip install requests
+          pip install pytz
 
       - name: Run Data Collector
         run: python popularity/data_collector_v2.py
