@@ -29,7 +29,7 @@ jobs:
           git config --global user.name "jaeuk520"
           git checkout feature/data_collector
           git add ./popularity/data/*
-          git commit -m "feat: 실시간 인구 데이터 수집 $(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M')"
+          git commit -m "docs: 실시간 인구 데이터 수집 $(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M')"
       - name: Push
         uses: ad-m/github-push-action@master
         with:

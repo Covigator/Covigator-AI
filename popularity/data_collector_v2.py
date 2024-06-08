@@ -4,6 +4,7 @@ import csv
 import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+import pytz
 
 BASE_URL = "http://openapi.seoul.go.kr:8088/44434c75716a616534354c774e7959/json/citydata/1/5/"
 RETRIES = 5
@@ -41,7 +42,8 @@ def write_data_to_csv(area_name, area_code, congestion_level, population_min, po
     # 데이터 추가
     with open(file_path, mode='a', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M")
+        seoul_tz = pytz.timezone('Asia/Seoul')
+        current_time = datetime.now(seoul_tz).strftime("%Y-%m-%d %H:%M")
 
         writer.writerow({
             '시각': current_time,
