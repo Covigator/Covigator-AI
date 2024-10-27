@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from catboost import CatBoostRegressor
 from bson import ObjectId
+from base_response import baseresponse  
 
 # 거리 계산 함수 (반경 필터링)
 def haversine(lon1, lat1, lon2, lat2):
@@ -44,7 +45,11 @@ def generate_recommendations(user_input, df, model):
     result = pd.DataFrame([], columns=['AREA_NM', 'SCORE'])
     for area_nm in final_area_names['VISIT_AREA_NM']:
         input_data = [area_nm] + list(user_data.values())
-        score = model.predict(input_data)
+        try:
+            score = model.predict(input_data, thread_count=1)
+        except Exception as e:
+            print(f"Prediction error: {e}")
+            return baseresponse(False, 500, "Prediction failed")
         result = pd.concat([result, pd.DataFrame([[area_nm, score]], columns=['AREA_NM', 'SCORE'])])
 
     return result.sort_values('SCORE', ascending=False).head(10)
