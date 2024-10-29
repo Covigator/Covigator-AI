@@ -7,6 +7,7 @@ import os
 from dotenv import load_dotenv
 from error_handlers import register_error_handlers
 from base_response import baseresponse  
+import time
 
 app = Flask(__name__)
 
@@ -25,6 +26,18 @@ collection = db["place"]
 model = CatBoostRegressor()
 model.load_model('model/catboost_model_DGSTFN_1018.cbm')
 
+@app.before_request
+def start_timer():
+    Flask.start = time.time()
+
+
+@app.after_request
+def log_response_time(response):
+    response_time = time.time() - Flask.start
+    print(f"Response Time: {response_time:.3f} seconds")
+    return response
+
+
 @app.route('/', methods=['GET'])
 def hello_world():
     return "Hello, World!"
@@ -35,11 +48,15 @@ def recommend():
         user_input = request.json
         if not user_input:
             raise baseresponse(False, 400, "No input data provided")
+        
+        # MongoDB 조회
         df = pd.DataFrame(list(collection.find()))
+        print(f"Retrieved DataFrame: {df.head()}")
         
         # 추천 생성
         top_10_recommendations = generate_recommendations(user_input, df, model)
         top_10_area_names = top_10_recommendations['AREA_NM'].tolist()
+        print(f"Top 10 Info: {top_10_info_df.head()}")
 
         #MongoDB에서 상위 10개 장소 정보 조회
         top_10_info = collection.find(
@@ -74,9 +91,12 @@ def recommend():
 
         recommendations = convert_object_id(pd.DataFrame(unique_recommendations).to_dict(orient='records'))
         return baseresponse(True, 200, "Recommendations retrieved successfully", recommendations)
+    
     except ValueError as ve:
+        print(f"ValueError: {ve}")
         return baseresponse(False, 400, str(ve))
     except Exception as e:
+        print(f"General Error: {e}")
         return baseresponse(False, 500, "An unexpected error occurred")
 
 
