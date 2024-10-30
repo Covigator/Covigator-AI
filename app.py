@@ -47,33 +47,29 @@ def recommend():
     try:
         user_input = request.json
         if not user_input:
-            raise baseresponse(False, 400, "No input data provided")
+            return baseresponse(False, 400, "No input data provided")
         
         # MongoDB 조회
-        df = pd.DataFrame(list(collection.find()))
+        df = pd.DataFrame(list(collection.find({}, {
+            "VISIT_AREA_NM": 1,
+            "GUNGU": 1,
+            "ROAD_NM_ADDR": 1,
+            "LOTNO_ADDR": 1,
+            "LONGITUDE": 1,
+            "LATITUDE": 1,
+            "VISIT_AREA_TYPE_CD": 1,
+            "PHONE_NUMBER": 1,
+            "OPERATION_HOUR": 1
+        })))
         print(f"Retrieved DataFrame: {df.head()}")
         
         # 추천 생성
         top_10_recommendations = generate_recommendations(user_input, df, model)
         top_10_area_names = top_10_recommendations['AREA_NM'].tolist()
-        print(f"Top 10 Info: {top_10_info_df.head()}")
 
         #MongoDB에서 상위 10개 장소 정보 조회
-        top_10_info = collection.find(
-            {"VISIT_AREA_NM": {"$in": top_10_area_names}},
-            {
-                "VISIT_AREA_NM": 1,
-                "GUNGU": 1,
-                "ROAD_NM_ADDR": 1,
-                "LOTNO_ADDR": 1,
-                "LONGITUDE": 1,
-                "LATITUDE": 1,
-                "VISIT_AREA_TYPE_CD": 1,
-                "PHONE_NUMBER": 1,
-                "OPERATION_HOUR": 1
-            }
-        )
-        top_10_info_df = pd.DataFrame(list(top_10_info))
+        top_10_info_df = df[df['VISIT_AREA_NM'].isin(top_10_area_names)]
+        print("Top 10 Info DataFrame Head:\n", top_10_info_df.head())  # 로그: 상위 추천 장소 정보 확인
 
         # 중복 제거 및 JSON 변환
         unique_recommendations = []
