@@ -16,15 +16,16 @@ def haversine(lon1, lat1, lon2, lat2):
 
 # 반경 내 후보지를 필터링
 def filter_by_radius(user_longitude, user_latitude, radius, area_data):
-    distances = area_data.apply(lambda row: haversine(user_longitude, user_latitude, row['LONGITUDE'], row['LATITUDE']), axis=1)
+    user_coords = np.radians([user_latitude, user_longitude])
+    area_coords = np.radians(area_data[['LATITUDE', 'LONGITUDE']])
+    distances = haversine(user_coords[1], user_coords[0], area_coords['LONGITUDE'].values, area_coords['LATITUDE'].values)
     return area_data[distances <= radius]
 
 # 추천 생성 함수
 def generate_recommendations(user_input, df, model):
-    area_names = df[['VISIT_AREA_NM']].drop_duplicates()
+    # 반경 내 데이터 필터링 및 중복 제거
     filtered_area_data = filter_by_radius(user_input['LONGITUDE'], user_input['LATITUDE'], user_input['RADIUS'], df)
-    filtered_area_names = filtered_area_data[['VISIT_AREA_NM']].drop_duplicates()
-    final_area_names = pd.merge(area_names, filtered_area_names, on='VISIT_AREA_NM')
+    unique_area_data = filtered_area_data.drop_duplicates(subset=['VISIT_AREA_NM'])
 
     user_data = {
         'VISIT_AREA_TYPE_CD': user_input['VISIT_AREA_TYPE_CD'],
@@ -43,7 +44,7 @@ def generate_recommendations(user_input, df, model):
     }
 
     result = pd.DataFrame([], columns=['AREA_NM', 'SCORE'])
-    for area_nm in final_area_names['VISIT_AREA_NM']:
+    for area_nm in unique_area_data['VISIT_AREA_NM']:
         input_data = [area_nm] + list(user_data.values())
         try:
             score = model.predict(input_data, thread_count=1)
