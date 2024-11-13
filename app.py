@@ -35,6 +35,10 @@ def start_timer():
 def log_response_time(response):
     response_time = time.time() - Flask.start
     print(f"Response Time: {response_time:.3f} seconds")
+
+    # 명시적으로 Content-Type: application/json 설정
+    if response.is_json:
+        response.headers["Content-Type"] = "application/json"
     return response
 
 
@@ -52,6 +56,7 @@ def recommend():
         if not user_input:
             return baseresponse(False, 400, "No input data provided")
         
+        db_start = time.time()
         # MongoDB 조회
         df = pd.DataFrame(list(collection.find({
             "LONGITUDE": {"$exists": True},
@@ -67,10 +72,13 @@ def recommend():
             "PHONE_NUMBER": 1,
             "OPERATION_HOUR": 1
         })))
-        print(f"Retrieved DataFrame: {df.head()}")
+        print(f"MongoDB Query Time: {time.time()-db_start:.3f} seconds")
+        # print(f"Retrieved DataFrame: {df.head()}")
         
         # 추천 생성
+        recommend_start = time.time()
         top_10_recommendations = generate_recommendations(user_input, df, model)
+        print(f"Recommendation Time: {time.time() - recommend_start:.3f} seconds")
         top_10_area_names = top_10_recommendations['AREA_NM'].tolist()
 
         #MongoDB에서 상위 10개 장소 정보 조회
