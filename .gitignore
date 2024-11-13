@@ -2,3 +2,4 @@
 Covigator-AI/
 .env
 error.log
+__pycache__/

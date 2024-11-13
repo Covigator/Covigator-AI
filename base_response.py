@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, make_response
 
 def baseresponse(isSuccess, responseCode, responseMessage, result=None):
     response = {
@@ -7,5 +7,5 @@ def baseresponse(isSuccess, responseCode, responseMessage, result=None):
         "responseMessage": responseMessage,
         "result": result if isSuccess else None
     }
-    return jsonify(response), responseCode
+    return make_response(jsonify(response), responseCode, {"Content-Type": "application/json"})
 

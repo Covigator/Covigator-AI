@@ -16,7 +16,12 @@ def haversine(lon1, lat1, lon2, lat2):
 
 # 반경 내 후보지를 필터링
 def filter_by_radius(user_longitude, user_latitude, radius, area_data):
-    distances = area_data.apply(lambda row: haversine(user_longitude, user_latitude, row['LONGITUDE'], row['LATITUDE']), axis=1)
+    distances = haversine(
+        user_longitude,
+        user_latitude,
+        area_data['LONGITUDE'].values,
+        area_data['LATITUDE'].values
+    )
     return area_data[distances <= radius]
 
 # 추천 생성 함수

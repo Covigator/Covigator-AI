@@ -45,12 +45,18 @@ def hello_world():
 @app.route('/recommend', methods=['POST'])
 def recommend():
     try:
+        if not request.is_json:
+            return baseresponse(False, 400, "Invalid Content-Type. Expected application/json")
+        
         user_input = request.json
         if not user_input:
             return baseresponse(False, 400, "No input data provided")
         
         # MongoDB 조회
-        df = pd.DataFrame(list(collection.find({}, {
+        df = pd.DataFrame(list(collection.find({
+            "LONGITUDE": {"$exists": True},
+            "LATITUDE": {"$exists": True}
+        }, {
             "VISIT_AREA_NM": 1,
             "GUNGU": 1,
             "ROAD_NM_ADDR": 1,
