@@ -3,6 +3,7 @@ import numpy as np
 from catboost import CatBoostRegressor
 from bson import ObjectId
 from base_response import baseresponse  
+import time
 
 # 거리 계산 함수 (반경 필터링)
 def haversine(lon1, lat1, lon2, lat2):
@@ -16,12 +17,14 @@ def haversine(lon1, lat1, lon2, lat2):
 
 # 반경 내 후보지를 필터링
 def filter_by_radius(user_longitude, user_latitude, radius, area_data):
+    filter_start = time.time()
     distances = haversine(
         user_longitude,
         user_latitude,
         area_data['LONGITUDE'].values,
         area_data['LATITUDE'].values
     )
+    print(f"Distance Calculate Time: {time.time() - filter_start:.3f} seconds")
     return area_data[distances <= radius]
 
 # 추천 생성 함수
@@ -46,7 +49,7 @@ def generate_recommendations(user_input, df, model):
         'TRAVEL_STATUS_ACCOMPANY': user_input['TRAVEL_STATUS_ACCOMPANY']
     }
 
-    result = pd.DataFrame([], columns=['AREA_NM', 'SCORE'])
+    rows = []
     for area_nm in unique_area_data['VISIT_AREA_NM']:
         input_data = [area_nm] + list(user_data.values())
         try:
@@ -54,8 +57,10 @@ def generate_recommendations(user_input, df, model):
         except Exception as e:
             print(f"Prediction error: {e}")
             return baseresponse(False, 500, "Prediction failed")
-        result = pd.concat([result, pd.DataFrame([[area_nm, score]], columns=['AREA_NM', 'SCORE'])])
+        rows.append([area_nm, score])
 
+    
+    result = pd.DataFrame(rows, columns=['AREA_NM', 'SCORE'])
     return result.sort_values('SCORE', ascending=False).head(10)
 
 # ObjectId 변환 함수
