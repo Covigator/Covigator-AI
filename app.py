@@ -38,7 +38,7 @@ def log_response_time(response):
 
     # 명시적으로 Content-Type: application/json 설정
     if response.is_json:
-        response.headers["Content-Type"] = "application/json"
+        response.headers["Content-Type"] = "application/json; charset=utf-8"
     return response
 
 
