@@ -8,4 +8,5 @@ def baseresponse(isSuccess, responseCode, responseMessage, result=None):
         "responseMessage": responseMessage,
         "result": result if isSuccess else None
     }
-    return jsonify(response), responseCode
+    response_json = json.dumps(response, ensure_ascii=False)
+    return make_response(response_json, responseCode, {"Content-Type": "application/json; charset=utf-8"})
