@@ -8,6 +8,4 @@ def baseresponse(isSuccess, responseCode, responseMessage, result=None):
         "responseMessage": responseMessage,
         "result": result if isSuccess else None
     }
-
-    return make_response(response, responseCode, {"Content-Type": "application/json; charset=utf-8"})
-
+    return jsonify(response), responseCode

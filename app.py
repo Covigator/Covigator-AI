@@ -10,6 +10,7 @@ from base_response import baseresponse
 import time
 
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False
 
 load_dotenv()
 
@@ -35,10 +36,6 @@ def start_timer():
 def log_response_time(response):
     response_time = time.time() - Flask.start
     print(f"Response Time: {response_time:.3f} seconds")
-
-    # 명시적으로 Content-Type: application/json 설정
-    if response.is_json:
-        response.headers["Content-Type"] = "application/json; charset=utf-8"
     return response
 
 
