@@ -8,8 +8,10 @@ from dotenv import load_dotenv
 from error_handlers import register_error_handlers
 from base_response import baseresponse  
 import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, resources={r"/recommend": {"origins": "https://covigator.vercel.app"}})
 
 load_dotenv()
 
